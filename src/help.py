@@ -24,3 +24,11 @@ def render_commands(header: bool = True) -> str:
         commands += f'{command} : {options} :'.rjust(get_terminal_size()[0] - 1) + '\n'
     return commands
 
+def game_title() -> None:
+    """Выводит заголовок игры"""
+    width = get_terminal_size().columns -3
+    title = f'\n#{"="*width}#\n#{" "*width}#\n#'
+    title += f'{"Игра".center(width)}#\n#'  
+    title += f'{"Крестики-Нолики".center(width)}' 
+    title += f'#\n#{" "*width}#\n#{"="*width}#\n'    
+    return print(title)
