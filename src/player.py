@@ -35,7 +35,7 @@ def get_player(authorize: bool = False) -> None:
     data.active_players_funcs.append(get_human_turn)
     
 
-def get_human_turn() -> int | None:
+def get_human_turn(pointer=None) -> int | None:
     """"""
     while True:
         turn = input(data.MESSAGES['ввод хода'])

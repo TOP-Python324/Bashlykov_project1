@@ -18,14 +18,13 @@ def start():
     utils.read_saves(data.saves_path, data.saves_db)
     
     if data.players_db:
-        print(help.render_commands())
+        print(help.game_title())
     else:
-        ...
+        print(help.render_commands())
         # help.show_full()
     
     player.get_player(True)
     utils.change_dim(3)
-
 
 def main_menu():
     """Суперцикл главного меню.
@@ -37,6 +36,9 @@ def main_menu():
         if command in data.COMMANDS['начать новую партию']:
             # настройка новой партии
             game.new()
+            
+            # выводим координатную сетку перед первым ходом
+            print(utils.generate_field_template().format(*(data.empty.keys())))
             # передача управления на средний уровень
             game.control()
         
@@ -46,8 +48,20 @@ def main_menu():
             # передача управления на средний уровень
             game.control(loaded = True)
         
-        # elif command in data.COMMANDS['']:
-        
+        elif command in data.COMMANDS['отобразить раздел помощи']:
+            print(help.render_commands())
+
+        elif command in data.COMMANDS['создать или переключиться на игрока']:
+            ...
+
+        elif command in data.COMMANDS['отобразить таблицу результатов']:
+            ...
+
+        elif command in data.COMMANDS['изменить размер поля']:
+            new_dim = utils.dim_input()
+            utils.change_dim(new_dim)
+            
+
         elif command in data.COMMANDS['выйти']:
             break
         
@@ -60,8 +74,7 @@ def end():
     
     Управялющая функция верхнего уровня."""
     
-
-
+    
 if __name__ == '__main__':
     start()
     main_menu()
