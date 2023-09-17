@@ -63,6 +63,7 @@ def write_saves(buffer: dict, fileout_path: Path) -> None:
     with open(fileout_path, 'w', encoding='utf-8') as fileout:
         fileout.write('\n'.join(players_data))
 
+
 def dim_input() -> int:
     """Запрашивает у пользователя и возвращает размер поля"""
     while True:
@@ -76,12 +77,12 @@ def change_dim(new_dim: int) -> None:
     """"""
     # new_dim = dim_input()
     data.dim = new_dim
-    data.all_new_dims = new_dim**2
+    data.all_cells = new_dim**2
     data.dim_range = range(new_dim)
-    data.all_new_dims_range = range(1, data.all_new_dims+1)
+    data.all_cells_range = range(1, data.all_cells+1)
     data.win_combinations = generate_win_combinations(new_dim)
-    data.field = generate_field_template(new_dim)
-    data.empty = dict.fromkeys(data.all_new_dims_range, ' ')
+    data.field_template = generate_field_template(new_dim)
+    data.empty = dict.fromkeys(data.all_cells_range, ' ')
     data.START_MATRICES = (
         bot.calc_sm_cross(),
         bot.calc_sm_zero()
@@ -165,41 +166,44 @@ def columnize(text: str, column_width: int) -> list[str]:
 def generate_win_combinations(dim: int = 3) -> list[set[int]]:
     """Генерирует и возвращает список множеств выигрышных комбинаций"""
     list_of_sets = []
-    #горизонтальные комбинации
-    for i in range(1, dim**2 + 1, dim):
+    # горизонтальные комбинации
+    for i in range(1, dim**2+1, dim):
         list_of_sets += [set(range(i, i+dim))]
     # вертикальные комбинации
     for i in range(1, dim + 1):
-        list_of_sets += [set(range(i, dim**2 + 1, dim))]
-    #диагональные комбинации
-    list_of_sets += [set(range(1, dim**2 + 1, dim+1))]
-    list_of_sets += [set(range(dim, dim**2-1, dim - 1))]
+        list_of_sets += [set(range(i, dim**2+1, dim))]
+    # диагональные комбинации
+    list_of_sets += [set(range(1, dim**2+1, dim+1))]
+    list_of_sets += [set(range(dim, dim**2-1, dim-1))]
     
     return list_of_sets
 
-def generate_field_template(dim: int = 3 ) -> str:
+
+def generate_field_template(dim: int = 3) -> str:
     """Генерирует шаблон игрового поля соответствующего размера, для отображения"""
     row = '|'.join([' {} ']*dim)
     line = '-'*(dim*3 + (dim-1))
-    return (f'\n{line}\n'.join([row]*dim))
-    
-def generate_field_template_0(dim: int = 3 ) -> str:
+    return f'\n{line}\n'.join([row]*dim)
+
+
+# УДАЛИТЬ: нет никакой необходимости создавать отдельную функцию, доработайте предыдущую — добавьте параметр-переключатель, который будет определять, генерировать лево- или правосторонний шаблон
+def generate_field_template_0(dim: int = 3) -> str:
     """Генерирует шаблон игрового поля соответствующего размера, для отображения"""
     row = '|'.join([' {} ']*dim)
+    # ИСПРАВИТЬ: функция get_terminal_size из модуля shutil уже импортирована и используется, вам всё же стоит дать себе труд изучить предоставленный код
+    # КОММЕНТАРИЙ: а ещё лучше придумать, как можно использовать также предоставленную функцию concatenate_rows()
     row1 = ' '*141 + row
-    line = ' '*141 + '-'*(dim*3 + (dim-1))
-    return (f'\n{line}\n'.join([row1]*dim))
-    
-# empty_dict = dict.fromkeys(range(1,26), ' ')
-# turns = {5: 'X', 3: '0', 9: 'X'}
-# board_5 = generator_field1(5).format(*(empty_dict | turns).values())
+    line = ' '*141 + '-'*(dim*3 + dim - 1)
+    return f'\n{line}\n'.join([row1]*dim)
 
 
 def render_field(pointer: int) -> str:
     """"""
     if pointer:
         # вывод поля крестика (слева)
+        # ИСПРАВИТЬ: может всё-таки возврат
         data.field_template.format(*(data.empty | data.turns).values())
     else:
         # вывод поля нолика (справа)
         data.field_template_0.format(*(data.empty | data.turns).values())
+

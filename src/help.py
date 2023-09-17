@@ -24,6 +24,8 @@ def render_commands(header: bool = True) -> str:
         commands += f'{command} : {options} :'.rjust(get_terminal_size()[0] - 1) + '\n'
     return commands
 
+
+# УДАЛИТЬ: необходимо учиться читать и использовать чужой код (функция utils.header_text()) — всё своё с нуля никогда не напишете
 def game_title() -> None:
     """Выводит заголовок игры"""
     width = get_terminal_size().columns -3
@@ -32,3 +34,4 @@ def game_title() -> None:
     title += f'{"Крестики-Нолики".center(width)}' 
     title += f'#\n#{" "*width}#\n#{"="*width}#\n'    
     return print(title)
+

@@ -6,6 +6,7 @@
 from itertools import islice
 from typing import Literal
 # импорты модулей проекта
+import bot
 import data
 import player
 import utils
@@ -13,28 +14,31 @@ import utils
 
 def new() -> None:
     """Определяет режим игры"""
+    # ИСПРАВИТЬ: перепишите функцию так, чтобы в своём условно-бесконечном цикле был каждый отдельный запрос, а не все разом в одном цикле
     while True:
-        num_people = int(input(data.MESSAGES['колличество игроков']))
-        
+        num_people = int(input(data.MESSAGES['количество игроков']))
         # если два игрока
         if num_people == 2:
             # Запрос имени второго игрока
-            player.get_player() 
+            player.get_player()
+            # ДОБАВИТЬ: объект функции player.get_human_turn в active_players_funcs
             break
         # если один игрок то запрашиваем уровень бота
         elif num_people == 1:    
             bot_level = input(data.MESSAGES['уровень бота'])
-            while bot_level != 'l' and bot_level != '2':
+            # ИСПРАВИТЬ: бесконечный цикл
+            while bot_level != '1' and bot_level != '2':
                 print(data.MESSAGES['недопустимое значение'])
                 bot_level = input(data.MESSAGES['уровень бота'])
                 
-            if bot_level == 'l':
-                data.active_players_names += ["#1"]   
+            if bot_level == '1':
+                data.active_players_names += ["#1"]
+                # ИСПРАВИТЬ: не в data.get_bot_turn, такой переменной вообще не должно быть
                 data.get_bot_turn = bot.easy_mode
             else:
                 data.active_players_names += ["#2"]   
                 data.get_bot_turn = bot.hard_mode    
-            break    
+            break
         else:
             print(data.MESSAGES['недопустимое значение'])
     
@@ -42,7 +46,8 @@ def new() -> None:
         token = input(f'\n _ ведите токен которым будет играть {data.active_players_names[0]} (X или O): ').upper()  
         if token in ['X', '0', 'Х', '0']:
             if token == data.TOKENS[1]:
-                data.active_players_names[0],data.active_players_names[1] = data.active_players_names[1], data.active_players_names[0]        
+                # ИСПОЛЬЗОВАТЬ: поменять местами список из двух элементов можно и проще
+                data.active_players_names = data.active_players_names[::-1]
             break
         else:
             print(data.MESSAGES['недопустимое значение']) 
@@ -54,7 +59,7 @@ def load():
 
 
 def control(loaded: bool = False):
-    """Управялющая функция среднего уровня."""
+    """Управляющая функция среднего уровня."""
     # игровой процесс
     result = game()
     # партия доиграна
@@ -74,6 +79,8 @@ def control(loaded: bool = False):
 
 def game() -> tuple[str, str] | Literal[()] | None:
     """Реализация игрового процесса."""
+    # УДАЛИТЬ: вот и ответ, отчего у вас размер поля не меняется: вы меняете его через команду, а потом здесь переопределяете часть переменных
+    # КОММЕНТАРИЙ: а ведь мы говорили, что специально выносим весь код по переопределению глобальных переменных в utils.change_dim()
     # Инициализация перед началом партии
     data.win_combinations = utils.generate_win_combinations()
     data.field_template = utils.generate_field_template()
@@ -85,6 +92,7 @@ def game() -> tuple[str, str] | Literal[()] | None:
         # индекс-указатель (pointer)
         p = turn % 2
         # запрос или вычисление хода
+        # ИСПРАВИТЬ: в переменной data.active_players_funcs
         # turn = data.active_players_funcs[player.get_human_turn()](p)
         turn = player.get_human_turn()
         # проверка на досрочное завершение партии
@@ -93,14 +101,17 @@ def game() -> tuple[str, str] | Literal[()] | None:
         # обновление словаря сделанных ходов
         data.turns |= {turn: data.TOKENS[p]}
         # вывод игрового поля в stdout
+        # ИСПРАВИТЬ: пишите отдельную функцию, отлаживайте её отдельно, а затем интегрируйте в проект
         # print(utils.render_field(p))
+        # УДАЛИТЬ: не нужно вот такого полу-временного/полу-постоянного кода — это сильно ухудшает ориентирование в проекте
         # print(data.field_template.format(*(data.empty | data.turns).values()))
         if p:
-        # вывод поля нолика (справа)
+            # вывод поля нолика (справа)
             print(data.field_template_0.format(*(data.empty | data.turns).values()))
         else:
-        # вывод поля крестика (слева)
+            # вывод поля крестика (слева)
             print(data.field_template.format(*(data.empty | data.turns).values()))
+        # УДАЛИТЬ: аналогично
         # проверка на наличие победной комбинации
         turns = set(islice(data.turns, p, None, 2))
         for comb in data.win_combinations:
@@ -108,7 +119,7 @@ def game() -> tuple[str, str] | Literal[()] | None:
                 print(f'\nВыиграл {data.active_players_names[p]}\n')
                 return [data.active_players_names[p],data.active_players_names[1-p]]
     print(data.MESSAGES['ничья'])    
-    return []    
+    return []
 
         # if check_win(p):
             # return data.active_players_names[p], data.active_players_names[p-1]
